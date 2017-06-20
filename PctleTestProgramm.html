@@ -1,0 +1,51 @@
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <style>
+ .ButtonWrapper{
+   display:flex;
+   flex-direction:row;
+   width:70%;
+   justify-content: space-between;
+ }
+ #Responsefield{
+   width:50px;
+   height:40px;
+   background:white;
+ }
+  </style>
+</head>
+<body>
+  <div class="ButtonWrapper">
+  <Button id="Button1">
+    1
+    </Button>
+     <Button id="Button2">
+       2
+    </Button>
+     <Button id="Button3">
+       3
+    </Button>
+    </div>
+    <div id="Responsefield">
+      </div>
+  <script>
+  $("#Button1").click(function(){
+    var p = new Promise(function(resolve,reject){
+      setTimeout(function(){resolve(); $("#Responsefield").text("1") }, 500);
+    })
+  })
+  $("#Button2").click(function(){
+    var p = new Promise(function(resolve,reject){
+      setTimeout(function(){ resolve();$("#Responsefield").text("2") }, 500);
+    })
+  })
+  $("#Button3").click(function(){
+    var p = new Promise(function(resolve,reject){
+      setTimeout(function(){ resolve();$("#Responsefield").text("3") }, 500);
+    })
+  })
+</script>
+  
+    </body>
+    </html>
