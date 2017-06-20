@@ -65,25 +65,40 @@
 
   <script type="text/javascript">
   var promiseData=[];
-  sessionStorage.setItem('promiseData',JSON.stringify([]))
+  sessionStorage.setItem('promiseData',JSON.stringify({}))
   $(".stopCode").click(function(){
     alert(sessionStorage.getItem('promiseData'))
   })
   function logPromise(id,creator,action){
-    console.log((new Error).stack);
-    var newEntry={id:id,creator:creator,action:action,time:Date.now()}
     var data=JSON.parse(sessionStorage.getItem('promiseData'))
-    data.push(newEntry);
+    if(!data[String(id)]){
+        data[String(id)]={}
+      }
+    if(action==="resolve"||action==="reject"){
+      data[id].endTime=Date.now();
+      if(action==="resolve"){
+        data[id].resolved=true;
+        data[id].endLocation=(new Error).stack.split('\n')[2]
+      }else{
+        data[id].resolved=false;
+        data[id].endLocation=(new Error).stack.split('\n')[2]
+      }
+    }else{
+      if(action==="creation"){
+        data[id].creationTime=Date.now();
+        data[id].creationLocation=(new Error).stack.split('\n')[2]
+      }
+    }    
     sessionStorage.setItem('promiseData', JSON.stringify(data));
   }
   $(".runCode").click(function(){
 
     var code=$(".htmlCode").val()
-    code=code.replace(/Promise\s*\(\s*function\s*\(\s*resolve\s*\,\s*reject\)\s*\{/g,"Promise(function(resolve, reject) {\n var id=Math.floor(100000000 + Math.random() * 900000000);\n logPromise(id,'creation') \n");
-    code=code.replace(/resolve\(.*\)/g, "logPromise(id,'resolve') \n resolve('sdafg')\n");
-    code=code.replace(/reject\(\s*\)/g, "\nlogPromise(id,'reject') \n reject()\n");
-    code=code.replace(/\=\s*resolve(\n|\;)/g, " = function(){\nlogPromise(id,'resolve') \n resolve();\n}\n");
-    code=code.replace(/\=\s*reject(\n|\;)/g, " = function(){\nlogPromise(id,'reject') \n reject();\n}\n");
+    code=code.replace(/Promise\s*\(\s*function\s*\(\s*resolve\s*\,\s*reject\)\s*\{/g,"Promise(function(resolve, reject) {\n var id=Math.floor(100000000 + Math.random() * 900000000);\n logPromise(id,new Error().lineNumber,'creation') \n");
+    code=code.replace(/resolve\((.*)\)/g, "logPromise(id,new Error().lineNumber,'resolve') \n resolve($1)\n");
+    code=code.replace(/reject\(\s*\)/g, "\n logPromise(id,new Error().lineNumber,'reject') \n reject()\n");
+    code=code.replace(/\=\s*resolve(\n|\;)/g, " = function(){\nlogPromise(id,new Error().lineNumber,'resolve') \n resolve();\n}\n");
+    code=code.replace(/\=\s*reject(\n|\;)/g, " = function(){\nlogPromise(id,new Error().lineNumber,'reject') \n reject();\n}\n");
 
     // $(".htmlCode").val(code)
     var iframe=document.getElementById('iframe');
